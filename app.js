@@ -1,12 +1,13 @@
-// Supabase Configuration
-const SUPABASE_URL = "https://afswezwmfjsgupgdcybl.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmc3dlendtZmpzZ3VwZ2RjeWJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzNDQxNzUsImV4cCI6MjA3NjkyMDE3NX0.94PzWGpJzy3WsMD55brMJPMgSWQUhI_m-RldY_xiVLk";
+// ========================================
+// MARCONI WIRELESS TELEGRAPH GAME
+// ========================================
+// This is the main game code that handles Morse code messages!
+// All the login stuff is in auth.js so we can focus on the fun parts here.
 
-// Initialize Supabase client
-const { createClient } = supabase;
-const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Get the Supabase client from the auth module
+const _supabase = window.getSupabaseClient();
 
-// Morse code dictionary
+// Morse code dictionary - this is how we convert letters to dots and dashes!
 const morseCode = {
     'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
     'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
@@ -29,17 +30,10 @@ function initAudioContext() {
     return audioContext;
 }
 
-// Global variables
+// Global variables for the game
 let channel = null;
-let currentUser = null;
 
-// DOM Elements
-const emailInput = document.getElementById("email");
-const sendLinkBtn = document.getElementById("sendLink");
-const authStatus = document.getElementById("authStatus");
-const appDiv = document.getElementById("app");
-const userEmailSpan = document.getElementById("userEmail");
-const signOutBtn = document.getElementById("signOut");
+// DOM Elements - these are the parts of the page we control
 const usernameInput = document.getElementById("username");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("send");
@@ -242,6 +236,7 @@ async function transmitMessage() {
     // Initialize audio context on user interaction (required by browsers)
     initAudioContext();
     
+    const currentUser = window.getCurrentUser();
     const username = usernameInput.value.trim() || currentUser?.email || "Anonymous";
     const room = "global";
     const morse = textToMorse(text);
@@ -281,69 +276,24 @@ async function transmitMessage() {
     console.log("Message transmitted successfully");
 }
 
-// Authentication functions
-sendLinkBtn.addEventListener("click", async () => {
-    const email = emailInput.value.trim();
-    if (!email) {
-        alert("Please enter an email address");
-        return;
-    }
-    
-    sendLinkBtn.disabled = true;
-    sendLinkBtn.textContent = "Sending...";
-    
-    const { error } = await _supabase.auth.signInWithOtp({ 
-        email,
-        options: {
-            emailRedirectTo: window.location.origin + window.location.pathname
-        }
-    });
-    
-    sendLinkBtn.disabled = false;
-    sendLinkBtn.textContent = "Send magic link";
-    
-    if (error) {
-        alert("Failed to send magic link: " + error.message);
-        console.error(error);
-        authStatus.textContent = "Error sending magic link";
-        return;
-    }
-    
-    authStatus.textContent = "✓ Magic link sent — check your email";
-});
+// ========================================
+// CALLBACKS FOR AUTHENTICATION
+// ========================================
+// The auth.js module will call these functions when someone logs in or out
 
-async function initAuth() {
-    const { data: { session } } = await _supabase.auth.getSession();
-    _supabase.auth.onAuthStateChange((event, session) => {
-        console.log("Auth event:", event);
-        updateUI(session);
-    });
-    updateUI(session);
-}
+// When someone logs in, start the game!
+window.onUserAuthenticated = function(user) {
+    console.log("User logged in, starting game!");
+    startRealtime();
+    fetchRecentMessages();
+};
 
-function updateUI(session) {
-    if (session?.user) {
-        currentUser = session.user;
-        authStatus.textContent = "✓ Signed in";
-        userEmailSpan.textContent = session.user.email || "unknown";
-        document.getElementById("auth").style.display = "none";
-        appDiv.style.display = "block";
-        startRealtime();
-        fetchRecentMessages();
-    } else {
-        currentUser = null;
-        authStatus.textContent = "Not signed in";
-        document.getElementById("auth").style.display = "block";
-        appDiv.style.display = "none";
-        stopRealtime();
-        messagesContainer.innerHTML = '';
-    }
-}
-
-signOutBtn.addEventListener("click", async () => {
-    await _supabase.auth.signOut();
-    updateUI(null);
-});
+// When someone logs out, stop the game
+window.onUserSignedOut = function() {
+    console.log("User logged out, stopping game");
+    stopRealtime();
+    messagesContainer.innerHTML = '';
+};
 
 // Send button click handler
 sendBtn.addEventListener("click", transmitMessage);
@@ -355,6 +305,3 @@ messageInput.addEventListener('keypress', function(e) {
         transmitMessage();
     }
 });
-
-// Initialize authentication on page load
-initAuth();
