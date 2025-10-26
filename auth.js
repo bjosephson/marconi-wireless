@@ -5,12 +5,12 @@
 const SUPABASE_URL = "https://afswezwmfjsgupgdcybl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmc3dlendtZmpzZ3VwZ2RjeWJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzNDQxNzUsImV4cCI6MjA3NjkyMDE3NX0.94PzWGpJzy3WsMD55brMJPMgSWQUhI_m-RldY_xiVLk";
 
-// Initialize Supabase client
+// Initialize Supabase client and make it globally available
 const { createClient } = supabase;
-const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window._supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Export the Supabase client so the game can use it
-window.getSupabaseClient = () => _supabase;
+window.getSupabaseClient = () => window._supabase;
 
 // Current user info
 let currentUser = null;

@@ -5,7 +5,7 @@
 // All the login stuff is in auth.js so we can focus on the fun parts here.
 
 // Get the Supabase client from the auth module
-const _supabase = window.getSupabaseClient();
+const _supabase = window._supabase;
 
 // Morse code dictionary - this is how we convert letters to dots and dashes!
 const morseCode = {
