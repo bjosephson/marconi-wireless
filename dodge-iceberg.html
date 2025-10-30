@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dodge the Iceberg - Marconi Wireless</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .game-container { max-width: 900px; margin: 0 auto; }
+    .canvas-wrap { display: flex; justify-content: center; }
+    canvas { background: #0a2a5e; border: 2px solid #d4af37; border-radius: 8px; }
+    .top-actions { display:flex; justify-content: space-between; align-items:center; margin-bottom:16px; }
+  </style>
+</head>
+<body>
+  <div class="container game-container">
+    <div class="header">
+      <h1>❄️ Dodge the Iceberg ❄️</h1>
+      <p>Steer the ship and avoid incoming icebergs. Arrow keys or A/D to move.</p>
+    </div>
+
+    <div class="top-actions">
+      <a href="index.html"><button>Back to Wireless Station</button></a>
+      <a href="dodge-iceberg.html"><button>Restart Game</button></a>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="game" width="800" height="500"></canvas>
+    </div>
+  </div>
+
+  <script src="titanic.js"></script>
+</body>
+</html>
